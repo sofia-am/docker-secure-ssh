@@ -1,18 +1,6 @@
 # Base image
 FROM ubuntu:latest
 
-# Copy the restricted-ssh-config file to the appropriate location
-COPY restricted-ssh-config /etc/restricted-ssh-commands/config
-
-# Copy the authorized_keys file to the appropriate location
-COPY authorized_keys /root/.ssh/authorized_keys
-
-# Set the RSC_VERBOSE environment variable in authorized_keys
-RUN sed -i 's/command="RSC_VERBOSE=1/command="RSC_VERBOSE=1 \/usr\/lib\/restricted-ssh-commands/g' /root/.ssh/authorized_keys
-
-# Include manpages
-RUN sed -i 's:^path-exclude=/usr/share/man:#path-exclude=/usr/share/man:' /etc/dpkg/dpkg.cfg.d/excludes
-
 # Install desired packages
 RUN apt-get update && \
     apt-get install -y \
@@ -21,11 +9,7 @@ RUN apt-get update && \
         coreutils \
         iputils-ping \
         lm-sensors \
-        man \
-        manpages-posix \
         wireless-tools 
-        #&& \
-        #apt search manpages | more
 
 # Create an SSH user
 RUN useradd -rm -d /home/iot_user -s /bin/rbash -g root -G sudo -u 1001 iot_user
@@ -45,7 +29,7 @@ RUN ln -s /bin/cat /home/iot_user/bin/
 RUN ln -s /sbin/ifconfig /home/iot_user/bin/
 RUN ln -s /bin/ping /home/iot_user/bin/
 RUN ln -s /bin/uptime /home/iot_user/bin/
-RUN ln -s /bin/iwconfig /home/iot_user/bin/
+RUN ln -s /sbin/iwconfig /home/iot_user/bin/
 RUN ln -s /bin/clear /home/iot_user/bin/
 
 RUN chmod 444 /home/iot_user/.bashrc
